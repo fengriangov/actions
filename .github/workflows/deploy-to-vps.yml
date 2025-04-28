@@ -1,0 +1,42 @@
+name: Deploy to VPS
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: false
+        type: string
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: deploy
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            if [ "${{ inputs.app_name }}" = "fengri" ]; then
+              cd /var/www/fengri
+            else
+              cd /var/www/fengri/${{ inputs.app_name }}
+            fi
+            echo "--=[ Pulling code from Github ]=--"
+            git remote remove origin || true
+            git remote add origin https://github.com/fengriangov/${{ inputs.app_name }}
+            git fetch -u origin main
+            echo "--=[ Discarding local changes ]=--"
+            git reset --hard origin/main
+            echo "--=[ Installing required dependencies ]=--"
+            npm install
+            echo "--=[ Restarting web server ]=--"
+            pm2 restart ecosystem.config.js --update-env
