@@ -6,10 +6,6 @@ on:
       app_name:
         required: false
         type: string
-  push:
-    branches:
-      - main
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -32,7 +28,7 @@ jobs:
             fi
             echo "--=[ Pulling code from Github ]=--"
             git remote remove origin || true
-            git remote add origin https://github.com/fengriangov/${{ inputs.app_name }}
+            git remote add origin https://github.com/fengriangov/${{ inputs.app_name }}.git
             git fetch -u origin main
             echo "--=[ Discarding local changes ]=--"
             git reset --hard origin/main
