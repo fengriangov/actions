@@ -21,11 +21,7 @@ jobs:
           username: deploy
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
-            if [ "${{ inputs.app_name }}" = "fengri" ]; then
-              cd /var/www/fengri
-            else
-              cd /var/www/fengri/${{ inputs.app_name }}
-            fi
+            cd /var/www/fengri/${{ inputs.app_name }}
             echo "--=[ Pulling code from Github ]=--"
             git remote remove origin || true
             git remote add origin https://github.com/fengriangov/${{ inputs.app_name }}.git
